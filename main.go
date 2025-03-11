@@ -31,7 +31,7 @@ func initialModel() model {
 			X:    5,
 			Y:    5,
 		},
-		Map: GameMap{
+		M: GameMap{
 			Tiles: [][]rune{
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
@@ -44,7 +44,7 @@ func initialModel() model {
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 			},
-			Entities: []Entity{
+			Entities: []*Entity{
 				{"Bat", 'b', 3, 2},
 			},
 		},
@@ -63,7 +63,7 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) View() string {
-	return m.Game.RenderMap()
+	return m.Game.RenderScreen()
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -80,6 +80,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "ctrl+c", "ctrl+d", "q":
 			return m, tea.Quit
+
+		default:
+			m.Game.HandleUpdate(key)
 		}
 
 	case tea.WindowSizeMsg:

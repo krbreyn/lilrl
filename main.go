@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -25,12 +24,37 @@ func main() {
 }
 
 func initialModel() model {
-	m := model{}
+	game := RLGame{
+		Player: Entity{
+			Name: "player",
+			Char: '@',
+			X:    5,
+			Y:    5,
+		},
+		Map: GameMap{
+			Tiles: [][]rune{
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+			},
+			Entities: []Entity{
+				{"Bat", 'b', 3, 2},
+			},
+		},
+	}
+	m := model{Game: &game, exitMsg: "Goodbye!"}
 	return m
 }
 
 type model struct {
-	Game    RLGame
+	Game    *RLGame
 	exitMsg string
 }
 
@@ -39,11 +63,7 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) View() string {
-	var sb strings.Builder
-
-	sb.WriteString(fmt.Sprintf("===\n\t%s", "hello, world!"))
-
-	return sb.String()
+	return m.Game.RenderMap()
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

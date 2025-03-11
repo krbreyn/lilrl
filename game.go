@@ -33,6 +33,10 @@ func (g *RLGame) RenderMap() string {
 
 	for yi, y := range g.Map.Tiles {
 		for xi, x := range y {
+			if g.Player.X == xi && g.Player.Y == yi {
+				sb.WriteRune(g.Player.Char)
+				continue
+			}
 			if e, ok := g.Map.EntityAtPos(xi, yi); ok {
 				sb.WriteRune(e.Char)
 			} else {

@@ -89,9 +89,21 @@ func (g *RLGame) RenderScreen() string {
 
 func (ui *UI) RenderStatusBox() string {
 	if len(ui.StatusMsgs) == 0 {
+		ui.StatusMsgs = append(ui.StatusMsgs, "")
+		ui.StatusMsgs = append(ui.StatusMsgs, "")
 		ui.StatusMsgs = append(ui.StatusMsgs, "Welcome to Lil' RL!")
 	}
-	return ui.StatusMsgs[len(ui.StatusMsgs)-1]
+	var last3 string
+	j := 3
+	for range 3 {
+		last3 += ui.StatusMsgs[len(ui.StatusMsgs)-j]
+		if j != 1 {
+			last3 += "\n"
+		}
+		j--
+	}
+
+	return last3
 }
 
 func (g *RLGame) RenderMap() string {
@@ -115,6 +127,6 @@ func (g *RLGame) RenderMap() string {
 	return sb.String()
 }
 
-var statusMsgStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder()).Width(50)
+var statusMsgStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Width(50)
 
 //var sideBarStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder()).Padding(1, 2).Width(10).Height(10)

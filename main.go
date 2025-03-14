@@ -78,7 +78,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch key {
 
-		case "ctrl+c", "ctrl+d", "q":
+		case "ctrl+c", "ctrl+d", "ctrl+q":
 			return m, tea.Quit
 
 		default:

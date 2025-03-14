@@ -20,6 +20,7 @@ type GameMap struct {
 	Entities []*Entity
 }
 
+// conv to interface?
 type Entity struct {
 	Name string
 	Char rune

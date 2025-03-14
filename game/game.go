@@ -52,17 +52,26 @@ func (g *RLGame) HandleEntityMove(e *NPC, target Vec2) {
 
 func (g *RLGame) HandleUpdate(key string) {
 	switch key {
+
+	/*
+		movement
+	*/
 	case "up", "k":
 		g.HandleEntityMove(&g.Player, Vec2{0, -1})
-
 	case "down", "j":
 		g.HandleEntityMove(&g.Player, Vec2{0, 1})
-
 	case "left", "h":
 		g.HandleEntityMove(&g.Player, Vec2{-1, 0})
-
 	case "right", "l":
 		g.HandleEntityMove(&g.Player, Vec2{1, 0})
+	case "y":
+		g.HandleEntityMove(&g.Player, Vec2{-1, -1})
+	case "u":
+		g.HandleEntityMove(&g.Player, Vec2{1, -1})
+	case "b":
+		g.HandleEntityMove(&g.Player, Vec2{-1, 1})
+	case "n":
+		g.HandleEntityMove(&g.Player, Vec2{1, 1})
 
 	default:
 		return // do not process turn

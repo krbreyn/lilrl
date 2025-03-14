@@ -5,6 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/krbreyn/lilrl/game"
 )
 
 func main() {
@@ -24,14 +25,13 @@ func main() {
 }
 
 func initialModel() model {
-	game := RLGame{
-		Player: Entity{
+	game := game.RLGame{
+		Player: game.NPC{
 			Name: "player",
 			Char: '@',
-			X:    5,
-			Y:    5,
+			Pos:  game.Vec2{X: 5, Y: 5},
 		},
-		M: GameMap{
+		M: game.GameMap{
 			Tiles: [][]rune{
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
@@ -44,8 +44,8 @@ func initialModel() model {
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 			},
-			Entities: []*Entity{
-				{"Bat", 'b', 3, 2},
+			Entities: []*game.NPC{
+				{Name: "bat", Char: 'b', Pos: game.Vec2{X: 4, Y: 8}, AI: game.WanderAI{ExtraReach: 1}},
 			},
 		},
 	}
@@ -54,7 +54,7 @@ func initialModel() model {
 }
 
 type model struct {
-	Game    *RLGame
+	Game    *game.RLGame
 	exitMsg string
 }
 

@@ -28,10 +28,12 @@ type AIContext interface {
 	GetPath(target Vec2) (path []Vec2)
 }
 
-type WanderAI struct{}
+type WanderAI struct {
+	ExtraReach int
+}
 
 func (w WanderAI) DecideAction(n *NPC, ctx *AIContext) Action {
-	dirs := []Vec2{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+	dirs := []Vec2{{0, 1 + w.ExtraReach}, {0, -1 - w.ExtraReach}, {1 + w.ExtraReach, 0}, {-1 - w.ExtraReach, 0}}
 	move := dirs[rand.Intn(len(dirs))]
 	return Action{Type: MoveAction, Target: move}
 }

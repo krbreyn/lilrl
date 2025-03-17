@@ -8,7 +8,6 @@ import (
 
 type UI struct {
 	statusMsgs []string
-	buffer     [][]rune
 }
 
 func (ui *UI) NewStatusMsg(msg string) {
@@ -17,7 +16,7 @@ func (ui *UI) NewStatusMsg(msg string) {
 
 func (ui *UI) RenderScreen(m *GameMap) string {
 	statusMsg := statusMsgStyle.Render(ui.RenderStatusBox())
-	game_map := ui.RenderMap(m, m.Player.MapPos)
+	game_map := ui.RenderMap(m, m.Player.Map)
 
 	layout := lipgloss.JoinVertical(lipgloss.Left, game_map, statusMsg)
 	return layout
@@ -56,7 +55,7 @@ func (ui *UI) RenderMap(m *GameMap, room Vec3) string {
 
 	for yi, y := range r.Tiles {
 		for xi, x := range y {
-			if m.Player.RoomPos.X == xi && m.Player.RoomPos.Y == yi {
+			if m.Player.Pos.X == xi && m.Player.Pos.Y == yi {
 				sb.WriteRune(m.Player.Char)
 				continue
 			}

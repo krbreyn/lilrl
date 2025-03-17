@@ -5,11 +5,11 @@ import "math/rand"
 type ActionType int
 
 type NPC struct {
-	Name    string
-	Char    rune
-	RoomPos Vec2
-	MapPos  Vec3
-	AI      AI
+	Name string
+	Char rune
+	Pos  Vec2
+	Map  Vec3
+	AI   AI
 }
 
 const (

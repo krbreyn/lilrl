@@ -9,10 +9,10 @@ func MakeNewDebugGame() *RLGame {
 		M: GameMap{
 			RoomMap: make(map[Vec3]Room),
 			Player: NPC{
-				Name:    "player",
-				Char:    '@',
-				RoomPos: Vec2{X: 5, Y: 5},
-				MapPos:  Vec3{0, 0, 0},
+				Name: "player",
+				Char: '@',
+				Pos:  Vec2{X: 5, Y: 5},
+				Map:  Vec3{0, 0, 0},
 			},
 		},
 	}
@@ -31,7 +31,7 @@ func MakeNewDebugGame() *RLGame {
 			{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 		},
 		Entities: []*NPC{
-			{Name: "bat", Char: 'b', RoomPos: Vec2{X: 4, Y: 8}, MapPos: Vec3{0, 0, 0}, AI: WanderAI{ExtraReach: 1}},
+			{Name: "bat", Char: 'b', Pos: Vec2{X: 4, Y: 8}, Map: Vec3{0, 0, 0}, AI: WanderAI{ExtraReach: 1}},
 		},
 	}
 
@@ -66,7 +66,7 @@ type Room struct {
 // Follows the comma, ok pattern.
 func (m *GameMap) EntityAtPos(pos Vec2, room Vec3) (*NPC, bool) {
 	for _, e := range m.RoomMap[room].Entities {
-		if pos == e.RoomPos {
+		if pos == e.Pos {
 			return e, true
 		}
 	}
@@ -74,9 +74,9 @@ func (m *GameMap) EntityAtPos(pos Vec2, room Vec3) (*NPC, bool) {
 }
 
 func (g *RLGame) HandleEntityMove(e *NPC, target Vec2) {
-	target = Vec2{X: target.X + e.RoomPos.X, Y: target.Y + e.RoomPos.Y}
+	target = Vec2{X: target.X + e.Pos.X, Y: target.Y + e.Pos.Y}
 
-	room := g.M.RoomMap[e.MapPos]
+	room := g.M.RoomMap[e.Map]
 	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
 		if e == &g.M.Player {
 			g.UI.NewStatusMsg("You bump into the edge!")
@@ -84,9 +84,9 @@ func (g *RLGame) HandleEntityMove(e *NPC, target Vec2) {
 		return
 	}
 
-	if other_e, ok := g.M.EntityAtPos(target, e.MapPos); !ok {
-		e.RoomPos.X = target.X
-		e.RoomPos.Y = target.Y
+	if other_e, ok := g.M.EntityAtPos(target, e.Map); !ok {
+		e.Pos.X = target.X
+		e.Pos.Y = target.Y
 	} else {
 		if e == &g.M.Player {
 			g.UI.NewStatusMsg(fmt.Sprintf("You bump into the %s!", other_e.Name))
@@ -125,7 +125,7 @@ func (g *RLGame) HandleUpdate(key string) {
 		return // do not process turn
 	}
 
-	for _, npc := range g.M.RoomMap[g.M.Player.MapPos].Entities {
+	for _, npc := range g.M.RoomMap[g.M.Player.Map].Entities {
 		action := npc.AI.DecideAction(npc, nil)
 		switch action.Type {
 		case MoveAction:

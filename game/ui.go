@@ -7,11 +7,12 @@ import (
 )
 
 type UI struct {
-	StatusMsgs []string
+	statusMsgs []string
+	buffer     [][]rune
 }
 
 func (ui *UI) NewStatusMsg(msg string) {
-	ui.StatusMsgs = append(ui.StatusMsgs, msg)
+	ui.statusMsgs = append(ui.statusMsgs, msg)
 }
 
 func (ui *UI) RenderScreen(m *GameMap) string {
@@ -23,15 +24,15 @@ func (ui *UI) RenderScreen(m *GameMap) string {
 }
 
 func (ui *UI) RenderStatusBox() string {
-	if len(ui.StatusMsgs) == 0 {
-		ui.StatusMsgs = append(ui.StatusMsgs, "")
-		ui.StatusMsgs = append(ui.StatusMsgs, "")
-		ui.StatusMsgs = append(ui.StatusMsgs, "Welcome to Lil' RL!")
+	if len(ui.statusMsgs) == 0 {
+		ui.statusMsgs = append(ui.statusMsgs, "")
+		ui.statusMsgs = append(ui.statusMsgs, "")
+		ui.statusMsgs = append(ui.statusMsgs, "Welcome to Lil' RL!")
 	}
 	var last3 string
 	j := 3
 	for range 3 {
-		last3 += ui.StatusMsgs[len(ui.StatusMsgs)-j]
+		last3 += ui.statusMsgs[len(ui.statusMsgs)-j]
 		if j != 1 {
 			last3 += "\n"
 		}
@@ -43,10 +44,14 @@ func (ui *UI) RenderStatusBox() string {
 
 func (ui *UI) RenderMap(m *GameMap, room Vec3) string {
 	var sb strings.Builder
-	r := m.RoomMap[room]
+	r, ok := m.RoomMap[room]
+
+	if !ok {
+		return "Something went horribly wrong! You are in a room that doesn't exist!"
+	}
 
 	if len(r.Tiles) == 0 {
-		return "Something went horribly wrong! You are in a room that doesn't exist!"
+		return "Something went horribly wrong! You are in a room with no tiles!"
 	}
 
 	for yi, y := range r.Tiles {

@@ -5,10 +5,11 @@ import "math/rand"
 type ActionType int
 
 type NPC struct {
-	Name string
-	Char rune
-	Pos  Vec2
-	AI   AI
+	Name    string
+	Char    rune
+	RoomPos Vec2
+	MapPos  Vec3
+	AI      AI
 }
 
 const (
@@ -33,7 +34,16 @@ type WanderAI struct {
 }
 
 func (w WanderAI) DecideAction(n *NPC, ctx *AIContext) Action {
-	dirs := []Vec2{{0, 1 + w.ExtraReach}, {0, -1 - w.ExtraReach}, {1 + w.ExtraReach, 0}, {-1 - w.ExtraReach, 0}}
+	dirs := []Vec2{
+		{0, 1},
+		{0, -1},
+		{0, 1 + w.ExtraReach},
+		{0, -1 - w.ExtraReach},
+		{1, 0},
+		{-1, 0},
+		{1 + w.ExtraReach, 0},
+		{-1 - w.ExtraReach, 0},
+	}
 	move := dirs[rand.Intn(len(dirs))]
 	return Action{Type: MoveAction, Target: move}
 }

@@ -25,31 +25,9 @@ func main() {
 }
 
 func initialModel() model {
-	game := game.RLGame{
-		Player: game.NPC{
-			Name: "player",
-			Char: '@',
-			Pos:  game.Vec2{X: 5, Y: 5},
-		},
-		M: game.GameMap{
-			Tiles: [][]rune{
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-				{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
-			},
-			Entities: []*game.NPC{
-				{Name: "bat", Char: 'b', Pos: game.Vec2{X: 4, Y: 8}, AI: game.WanderAI{ExtraReach: 1}},
-			},
-		},
-	}
-	m := model{Game: &game, exitMsg: "Goodbye!"}
+	game := game.MakeNewDebugGame()
+
+	m := model{Game: game, exitMsg: "Goodbye!"}
 	return m
 }
 
@@ -63,7 +41,7 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) View() string {
-	return m.Game.RenderScreen()
+	return m.Game.RenderUI()
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

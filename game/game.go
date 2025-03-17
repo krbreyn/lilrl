@@ -73,18 +73,18 @@ func (m *GameMap) EntityAtPos(pos Vec2, room Vec3) (*NPC, bool) {
 	return &NPC{}, false
 }
 
-func (g *RLGame) HandleEntityMove(e *NPC, target Vec2, room Vec3) {
+func (g *RLGame) HandleEntityMove(e *NPC, target Vec2) {
 	target = Vec2{X: target.X + e.RoomPos.X, Y: target.Y + e.RoomPos.Y}
 
-	t_room := g.M.RoomMap[room]
-	if target.X < 0 || target.X > len(t_room.Tiles)-1 || target.Y < 0 || target.Y > len(t_room.Tiles[0])-1 {
+	room := g.M.RoomMap[e.MapPos]
+	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
 		if e == &g.M.Player {
 			g.UI.NewStatusMsg("You bump into the edge!")
 		}
 		return
 	}
 
-	if other_e, ok := g.M.EntityAtPos(target, room); !ok {
+	if other_e, ok := g.M.EntityAtPos(target, e.MapPos); !ok {
 		e.RoomPos.X = target.X
 		e.RoomPos.Y = target.Y
 	} else {
@@ -96,27 +96,30 @@ func (g *RLGame) HandleEntityMove(e *NPC, target Vec2, room Vec3) {
 }
 
 func (g *RLGame) HandleUpdate(key string) {
-	switch key {
 
-	/*
-		movement
-	*/
-	case "up", "k":
-		g.HandleEntityMove(&g.M.Player, Vec2{0, -1}, g.M.Player.MapPos)
-	case "down", "j":
-		g.HandleEntityMove(&g.M.Player, Vec2{0, 1}, g.M.Player.MapPos)
-	case "left", "h":
-		g.HandleEntityMove(&g.M.Player, Vec2{-1, 0}, g.M.Player.MapPos)
-	case "right", "l":
-		g.HandleEntityMove(&g.M.Player, Vec2{1, 0}, g.M.Player.MapPos)
-	case "y":
-		g.HandleEntityMove(&g.M.Player, Vec2{-1, -1}, g.M.Player.MapPos)
-	case "u":
-		g.HandleEntityMove(&g.M.Player, Vec2{1, -1}, g.M.Player.MapPos)
-	case "b":
-		g.HandleEntityMove(&g.M.Player, Vec2{-1, 1}, g.M.Player.MapPos)
-	case "n":
-		g.HandleEntityMove(&g.M.Player, Vec2{1, 1}, g.M.Player.MapPos)
+	switch key {
+	/* movement */
+	case "up", "k", "down", "j", "left", "h", "right", "l", "y", "u", "b", "n":
+		var pos Vec2
+		switch key {
+		case "up", "k":
+			pos = Vec2{0, -1}
+		case "down", "j":
+			pos = Vec2{0, 1}
+		case "left", "h":
+			pos = Vec2{-1, 0}
+		case "right", "l":
+			pos = Vec2{1, 0}
+		case "y":
+			pos = Vec2{-1, -1}
+		case "u":
+			pos = Vec2{1, -1}
+		case "b":
+			pos = Vec2{-1, 1}
+		case "n":
+			pos = Vec2{1, 1}
+		}
+		g.HandleEntityMove(&g.M.Player, pos)
 
 	default:
 		return // do not process turn
@@ -126,7 +129,7 @@ func (g *RLGame) HandleUpdate(key string) {
 		action := npc.AI.DecideAction(npc, nil)
 		switch action.Type {
 		case MoveAction:
-			g.HandleEntityMove(npc, action.Target, npc.MapPos)
+			g.HandleEntityMove(npc, action.Target)
 		}
 	}
 }

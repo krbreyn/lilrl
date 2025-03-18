@@ -2,7 +2,7 @@ package game
 
 func GetPlayerAction(key string) Action {
 	switch key {
-	case ":":
+	case ".":
 		return WaitAction{}
 	/* movement */
 	case "up", "k", "down", "j", "left", "h", "right", "l", "y", "u", "b", "n":

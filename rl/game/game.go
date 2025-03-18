@@ -8,11 +8,13 @@ func MakeNewDebugGame() *RLGame {
 	game := RLGame{
 		M: GameMap{
 			RoomMap: make(map[Vec3]Room),
-			Player: NPC{
-				Name: "player",
-				Char: '@',
-				Pos:  Vec2{X: 5, Y: 5},
-				Map:  Vec3{0, 0, 0},
+			Player: Actor{
+				Name:   "player",
+				Char:   '@',
+				Pos:    Vec2{X: 5, Y: 5},
+				Map:    Vec3{0, 0, 0},
+				Energy: 10,
+				Speed:  10,
 			},
 		},
 	}
@@ -30,8 +32,16 @@ func MakeNewDebugGame() *RLGame {
 			{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 			{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 		},
-		Entities: []*NPC{
-			{Name: "bat", Char: 'b', Pos: Vec2{X: 4, Y: 8}, Map: Vec3{0, 0, 0}, AI: WanderAI{ExtraReach: 1}},
+		Entities: []*Actor{
+			{
+				Name:   "bat",
+				Char:   'b',
+				Pos:    Vec2{X: 4, Y: 8},
+				Map:    Vec3{0, 0, 0},
+				AI:     WanderAI{},
+				Energy: 5,
+				Speed:  5,
+			},
 		},
 	}
 
@@ -48,7 +58,8 @@ type RLGame struct {
 //AlertMsg func - pause until user hits enter, ex. health below 50%
 
 type GameMap struct {
-	Player  NPC
+	Turn    int
+	Player  Actor
 	Rooms   []Room
 	RoomMap map[Vec3]Room
 }
@@ -60,20 +71,23 @@ func (m *GameMap) AddNewRoom(pos Vec3, room Room) {
 type Room struct {
 	Pos      Vec3
 	Tiles    [][]rune
-	Entities []*NPC
+	Entities []*Actor
 }
 
 // Follows the comma, ok pattern.
-func (m *GameMap) EntityAtPos(pos Vec2, room Vec3) (*NPC, bool) {
+func (m *GameMap) EntityAtPos(pos Vec2, room Vec3) (*Actor, bool) {
+	if m.Player.Pos == pos {
+		return &m.Player, true
+	}
 	for _, e := range m.RoomMap[room].Entities {
 		if pos == e.Pos {
 			return e, true
 		}
 	}
-	return &NPC{}, false
+	return &Actor{}, false
 }
 
-func (g *RLGame) HandleEntityMove(e *NPC, target Vec2) {
+func (g *RLGame) HandleEntityMove(e *Actor, target Vec2) {
 	target = Vec2{X: target.X + e.Pos.X, Y: target.Y + e.Pos.Y}
 
 	room := g.M.RoomMap[e.Map]
@@ -90,48 +104,41 @@ func (g *RLGame) HandleEntityMove(e *NPC, target Vec2) {
 	} else {
 		if e == &g.M.Player {
 			g.UI.NewStatusMsg(fmt.Sprintf("You bump into the %s!", other_e.Name))
+		} else {
+			g.UI.NewStatusMsg(fmt.Sprintf("The %s bumps into you!", e.Name))
 		}
 		return // do nothing for now
 	}
 }
 
-func (g *RLGame) HandleUpdate(key string) {
+func (g *RLGame) HandleAction(e *Actor, action Action) {
+	e.Energy = 0
 
-	switch key {
-	/* movement */
-	case "up", "k", "down", "j", "left", "h", "right", "l", "y", "u", "b", "n":
-		var pos Vec2
-		switch key {
-		case "up", "k":
-			pos = Vec2{0, -1}
-		case "down", "j":
-			pos = Vec2{0, 1}
-		case "left", "h":
-			pos = Vec2{-1, 0}
-		case "right", "l":
-			pos = Vec2{1, 0}
-		case "y":
-			pos = Vec2{-1, -1}
-		case "u":
-			pos = Vec2{1, -1}
-		case "b":
-			pos = Vec2{-1, 1}
-		case "n":
-			pos = Vec2{1, 1}
+	switch action := action.(type) {
+	case WaitAction:
+		return
+	case MoveAction:
+		g.HandleEntityMove(e, action.Target)
+	}
+}
+
+var turnsPerUpdate uint8 = 1
+
+func (g *RLGame) Update(PlayerAction Action) {
+	g.HandleAction(&g.M.Player, PlayerAction)
+
+	for g.M.Player.Energy != g.M.Player.Speed {
+		for _, e := range g.M.RoomMap[g.M.Player.Map].Entities {
+			if e.Energy != e.Speed {
+				e.Energy += turnsPerUpdate
+				continue
+			}
+			g.HandleAction(e, e.AI.DecideAction(e, nil))
 		}
-		g.HandleEntityMove(&g.M.Player, pos)
-
-	default:
-		return // do not process turn
+		g.M.Turn += int(turnsPerUpdate)
+		g.M.Player.Energy += turnsPerUpdate
 	}
 
-	for _, npc := range g.M.RoomMap[g.M.Player.Map].Entities {
-		action := npc.AI.DecideAction(npc, nil)
-		switch action.Type {
-		case MoveAction:
-			g.HandleEntityMove(npc, action.Target)
-		}
-	}
 }
 
 func (g *RLGame) RenderUI() string {

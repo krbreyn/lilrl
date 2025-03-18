@@ -5,7 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/krbreyn/lilrl/game"
+	"github.com/krbreyn/lilrl/rl/game"
 )
 
 func main() {
@@ -60,7 +60,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		default:
-			m.Game.HandleUpdate(key)
+			action := game.GetPlayerAction(key)
+			m.Game.Update(action)
 		}
 
 	case tea.WindowSizeMsg:

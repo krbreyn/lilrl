@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -17,9 +18,14 @@ func (ui *UI) NewStatusMsg(msg string) {
 func (ui *UI) RenderScreen(m *GameMap) string {
 	statusMsg := statusMsgStyle.Render(ui.RenderStatusBox())
 	game_map := ui.RenderMap(m, m.Player.Map)
+	sidebar := ui.RenderSideScreen(m)
 
-	layout := lipgloss.JoinVertical(lipgloss.Left, game_map, statusMsg)
+	layout := lipgloss.JoinHorizontal(lipgloss.Left, (lipgloss.JoinVertical(lipgloss.Left, game_map, statusMsg)), sidebar)
 	return layout
+}
+
+func (ui *UI) RenderSideScreen(m *GameMap) string {
+	return fmt.Sprintf("turn: %d", m.Turn)
 }
 
 func (ui *UI) RenderStatusBox() string {

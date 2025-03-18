@@ -65,13 +65,19 @@ func (g *RLGame) Update(PlayerAction Action) {
 		return
 	}
 
-	for g.M.Player.Energy != g.M.Player.Speed {
-		for _, e := range g.M.RoomMap[g.M.Player.Room].Actors {
-			if e.Energy != e.Speed {
-				e.Energy += turnsPerUpdate
+	for {
+		nextPlayerTurn := g.M.Player.Energy == g.M.Player.Speed
+		if nextPlayerTurn {
+			break
+		}
+
+		for _, a := range g.M.RoomMap[g.M.Player.Room].Actors {
+			nextActorTurn := a.Energy == a.Speed
+			if !nextActorTurn {
+				a.Energy += turnsPerUpdate
 				continue
 			}
-			g.HandleAction(e, e.AI.DecideAction(e, nil))
+			g.HandleAction(a, a.AI.DecideAction(a, nil))
 		}
 		g.M.Turn += int(turnsPerUpdate)
 		g.M.Player.Energy += turnsPerUpdate
@@ -98,25 +104,25 @@ func (g *RLGame) HandleAction(e *Actor, action Action) (shouldReturn bool) {
 	return false
 }
 
-func (g *RLGame) HandleMoveAction(e *Actor, target Vec2) {
-	target = Vec2{X: target.X + e.Pos.X, Y: target.Y + e.Pos.Y}
+func (g *RLGame) HandleMoveAction(a *Actor, target Vec2) {
+	target = Vec2{X: target.X + a.Pos.X, Y: target.Y + a.Pos.Y}
 
-	room := g.M.RoomMap[e.Room]
+	room := g.M.RoomMap[a.Room]
 	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
-		if e == &g.M.Player {
+		if a == &g.M.Player {
 			g.UI.NewStatusMsg("You bump into the edge!")
 		}
 		return
 	}
 
-	if other_e, ok := g.M.ActorAtPos(target, e.Room); !ok {
-		e.Pos.X = target.X
-		e.Pos.Y = target.Y
+	if other_e, ok := g.M.ActorAtPos(target, a.Room); !ok {
+		a.Pos.X = target.X
+		a.Pos.Y = target.Y
 	} else {
-		if e == &g.M.Player {
+		if a == &g.M.Player {
 			g.UI.NewStatusMsg(fmt.Sprintf("You bump into the %s!", other_e.Name))
 		} else {
-			g.UI.NewStatusMsg(fmt.Sprintf("The %s bumps into you!", e.Name))
+			g.UI.NewStatusMsg(fmt.Sprintf("The %s bumps into you!", a.Name))
 		}
 		return // do nothing for now
 	}

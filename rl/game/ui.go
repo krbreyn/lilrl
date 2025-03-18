@@ -20,7 +20,11 @@ func (ui *UI) RenderScreen(m *GameMap) string {
 	game_map := ui.RenderMap(m, m.Player.Room)
 	sidebar := ui.RenderSideScreen(m)
 
-	layout := lipgloss.JoinHorizontal(lipgloss.Left, (lipgloss.JoinVertical(lipgloss.Left, game_map, statusMsg)), sidebar)
+	layout := lipgloss.JoinHorizontal(
+		lipgloss.Left,
+		lipgloss.JoinVertical(lipgloss.Left, game_map, statusMsg),
+		sidebar,
+	)
 	return layout
 }
 

@@ -10,7 +10,7 @@ type Actor struct {
 	Energy uint8
 	Speed  uint8
 	Pos    Vec2
-	Map    Vec3
+	Room   Vec3
 	AI     AI
 }
 

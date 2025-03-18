@@ -12,7 +12,7 @@ func MakeNewDebugGame() *RLGame {
 				Name:   "player",
 				Char:   '@',
 				Pos:    Vec2{X: 5, Y: 5},
-				Map:    Vec3{0, 0, 0},
+				Room:   Vec3{0, 0, 0},
 				Energy: 10,
 				Speed:  10,
 			},
@@ -37,7 +37,7 @@ func MakeNewDebugGame() *RLGame {
 				Name:   "bat",
 				Char:   'b',
 				Pos:    Vec2{X: 4, Y: 8},
-				Map:    Vec3{0, 0, 0},
+				Room:   Vec3{0, 0, 0},
 				AI:     WanderAI{},
 				Energy: 5,
 				Speed:  5,
@@ -63,7 +63,7 @@ func (g *RLGame) Update(PlayerAction Action) {
 	g.HandleAction(&g.M.Player, PlayerAction)
 
 	for g.M.Player.Energy != g.M.Player.Speed {
-		for _, e := range g.M.RoomMap[g.M.Player.Map].Actors {
+		for _, e := range g.M.RoomMap[g.M.Player.Room].Actors {
 			if e.Energy != e.Speed {
 				e.Energy += turnsPerUpdate
 				continue
@@ -95,7 +95,7 @@ func (g *RLGame) HandleAction(e *Actor, action Action) {
 func (g *RLGame) HandleMoveAction(e *Actor, target Vec2) {
 	target = Vec2{X: target.X + e.Pos.X, Y: target.Y + e.Pos.Y}
 
-	room := g.M.RoomMap[e.Map]
+	room := g.M.RoomMap[e.Room]
 	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
 		if e == &g.M.Player {
 			g.UI.NewStatusMsg("You bump into the edge!")
@@ -103,7 +103,7 @@ func (g *RLGame) HandleMoveAction(e *Actor, target Vec2) {
 		return
 	}
 
-	if other_e, ok := g.M.ActorAtPos(target, e.Map); !ok {
+	if other_e, ok := g.M.ActorAtPos(target, e.Room); !ok {
 		e.Pos.X = target.X
 		e.Pos.Y = target.Y
 	} else {

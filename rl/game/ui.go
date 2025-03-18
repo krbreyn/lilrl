@@ -17,7 +17,7 @@ func (ui *UI) NewStatusMsg(msg string) {
 
 func (ui *UI) RenderScreen(m *GameMap) string {
 	statusMsg := statusMsgStyle.Render(ui.RenderStatusBox())
-	game_map := ui.RenderMap(m, m.Player.Map)
+	game_map := ui.RenderMap(m, m.Player.Room)
 	sidebar := ui.RenderSideScreen(m)
 
 	layout := lipgloss.JoinHorizontal(lipgloss.Left, (lipgloss.JoinVertical(lipgloss.Left, game_map, statusMsg)), sidebar)

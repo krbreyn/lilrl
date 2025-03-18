@@ -45,7 +45,7 @@ type Room struct {
 
 // Follows the comma, ok pattern.
 func (m *GameMap) ActorAtPos(pos Vec2, room Vec3) (*Actor, bool) {
-	if m.Player.Pos == pos {
+	if m.Player.Pos == pos && m.Player.Room == room {
 		return &m.Player, true
 	}
 	for _, e := range m.RoomMap[room].Actors {

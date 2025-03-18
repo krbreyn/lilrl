@@ -65,7 +65,7 @@ func (ui *UI) RenderMap(m *GameMap, room Vec3) string {
 				sb.WriteRune(m.Player.Char)
 				continue
 			}
-			if e, ok := m.EntityAtPos(Vec2{xi, yi}, room); ok {
+			if e, ok := m.ActorAtPos(Vec2{xi, yi}, room); ok {
 				sb.WriteRune(e.Char)
 			} else {
 				sb.WriteRune(x)

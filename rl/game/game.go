@@ -32,7 +32,7 @@ func MakeNewDebugGame() *RLGame {
 			{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 			{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 		},
-		Entities: []*Actor{
+		Actors: []*Actor{
 			{
 				Name:   "bat",
 				Char:   'b',
@@ -57,78 +57,13 @@ type RLGame struct {
 
 //AlertMsg func - pause until user hits enter, ex. health below 50%
 
-type GameMap struct {
-	Turn    int
-	Player  Actor
-	Rooms   []Room
-	RoomMap map[Vec3]Room
-}
-
-func (m *GameMap) AddNewRoom(pos Vec3, room Room) {
-	m.RoomMap[pos] = room
-}
-
-type Room struct {
-	Pos      Vec3
-	Tiles    [][]rune
-	Entities []*Actor
-}
-
-// Follows the comma, ok pattern.
-func (m *GameMap) EntityAtPos(pos Vec2, room Vec3) (*Actor, bool) {
-	if m.Player.Pos == pos {
-		return &m.Player, true
-	}
-	for _, e := range m.RoomMap[room].Entities {
-		if pos == e.Pos {
-			return e, true
-		}
-	}
-	return &Actor{}, false
-}
-
-func (g *RLGame) HandleEntityMove(e *Actor, target Vec2) {
-	target = Vec2{X: target.X + e.Pos.X, Y: target.Y + e.Pos.Y}
-
-	room := g.M.RoomMap[e.Map]
-	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
-		if e == &g.M.Player {
-			g.UI.NewStatusMsg("You bump into the edge!")
-		}
-		return
-	}
-
-	if other_e, ok := g.M.EntityAtPos(target, e.Map); !ok {
-		e.Pos.X = target.X
-		e.Pos.Y = target.Y
-	} else {
-		if e == &g.M.Player {
-			g.UI.NewStatusMsg(fmt.Sprintf("You bump into the %s!", other_e.Name))
-		} else {
-			g.UI.NewStatusMsg(fmt.Sprintf("The %s bumps into you!", e.Name))
-		}
-		return // do nothing for now
-	}
-}
-
-func (g *RLGame) HandleAction(e *Actor, action Action) {
-	e.Energy = 0
-
-	switch action := action.(type) {
-	case WaitAction:
-		return
-	case MoveAction:
-		g.HandleEntityMove(e, action.Target)
-	}
-}
-
-var turnsPerUpdate uint8 = 1
+const turnsPerUpdate uint8 = 1
 
 func (g *RLGame) Update(PlayerAction Action) {
 	g.HandleAction(&g.M.Player, PlayerAction)
 
 	for g.M.Player.Energy != g.M.Player.Speed {
-		for _, e := range g.M.RoomMap[g.M.Player.Map].Entities {
+		for _, e := range g.M.RoomMap[g.M.Player.Map].Actors {
 			if e.Energy != e.Speed {
 				e.Energy += turnsPerUpdate
 				continue
@@ -143,4 +78,40 @@ func (g *RLGame) Update(PlayerAction Action) {
 
 func (g *RLGame) RenderUI() string {
 	return g.UI.RenderScreen(&g.M)
+}
+
+/* actions */
+func (g *RLGame) HandleAction(e *Actor, action Action) {
+	e.Energy = 0
+
+	switch action := action.(type) {
+	case WaitAction:
+		return
+	case MoveAction:
+		g.HandleMoveAction(e, action.Target)
+	}
+}
+
+func (g *RLGame) HandleMoveAction(e *Actor, target Vec2) {
+	target = Vec2{X: target.X + e.Pos.X, Y: target.Y + e.Pos.Y}
+
+	room := g.M.RoomMap[e.Map]
+	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
+		if e == &g.M.Player {
+			g.UI.NewStatusMsg("You bump into the edge!")
+		}
+		return
+	}
+
+	if other_e, ok := g.M.ActorAtPos(target, e.Map); !ok {
+		e.Pos.X = target.X
+		e.Pos.Y = target.Y
+	} else {
+		if e == &g.M.Player {
+			g.UI.NewStatusMsg(fmt.Sprintf("You bump into the %s!", other_e.Name))
+		} else {
+			g.UI.NewStatusMsg(fmt.Sprintf("The %s bumps into you!", e.Name))
+		}
+		return // do nothing for now
+	}
 }

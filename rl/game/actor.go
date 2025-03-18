@@ -22,9 +22,7 @@ type AIContext interface {
 	GetPath(target Vec2) (path []Vec2)
 }
 
-type WanderAI struct {
-	ExtraReach int
-}
+type WanderAI struct{}
 
 func (w WanderAI) DecideAction(n *Actor, ctx *AIContext) Action {
 	dir := Vec2{

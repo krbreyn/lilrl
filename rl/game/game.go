@@ -60,7 +60,10 @@ type RLGame struct {
 const turnsPerUpdate uint8 = 1
 
 func (g *RLGame) Update(PlayerAction Action) {
-	g.HandleAction(&g.M.Player, PlayerAction)
+	shouldReturn := g.HandleAction(&g.M.Player, PlayerAction)
+	if shouldReturn {
+		return
+	}
 
 	for g.M.Player.Energy != g.M.Player.Speed {
 		for _, e := range g.M.RoomMap[g.M.Player.Room].Actors {
@@ -81,15 +84,18 @@ func (g *RLGame) RenderUI() string {
 }
 
 /* actions */
-func (g *RLGame) HandleAction(e *Actor, action Action) {
+func (g *RLGame) HandleAction(e *Actor, action Action) (shouldReturn bool) {
 	e.Energy = 0
 
 	switch action := action.(type) {
+	case InvalidKeyAction:
+		return true
 	case WaitAction:
-		return
+		return false
 	case MoveAction:
 		g.HandleMoveAction(e, action.Target)
 	}
+	return false
 }
 
 func (g *RLGame) HandleMoveAction(e *Actor, target Vec2) {

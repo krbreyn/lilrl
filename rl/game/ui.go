@@ -16,7 +16,7 @@ func (ui *UI) NewStatusMsg(msg string) {
 }
 
 func (ui *UI) RenderScreen(m *GameMap) string {
-	statusMsg := statusMsgStyle.Render(ui.RenderStatusBox())
+	statusMsg := ui.RenderStatusBox()
 	game_map := ui.RenderMap(m, m.Player.Room)
 	sidebar := ui.RenderSideScreen(m)
 
@@ -80,7 +80,3 @@ func (ui *UI) RenderMap(m *GameMap, room Vec3) string {
 
 	return sb.String()
 }
-
-var statusMsgStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Width(50)
-
-//var sideBarStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder()).Padding(1, 2).Width(10).Height(10)

@@ -1,0 +1,12 @@
+{
+  {
+    Name: "bat",
+    Char: "b",
+    Speed: 5,
+  },
+  {
+    Name: "shambler",
+    Char: "s",
+    Speed: 10,
+  },
+}

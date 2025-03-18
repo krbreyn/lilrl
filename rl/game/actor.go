@@ -4,7 +4,7 @@ import "math/rand"
 
 type Actor struct {
 	Name   string
-	Char   rune
+	Rune   rune
 	Energy uint8
 	Speed  uint8
 	Pos    Vec2

@@ -66,13 +66,13 @@ func (ui *UI) RenderMap(m *GameMap, room Vec3) string {
 	for yi, y := range r.Tiles {
 		for xi, x := range y {
 			if m.Player.Pos.X == xi && m.Player.Pos.Y == yi {
-				sb.WriteRune(m.Player.Char)
+				sb.WriteRune(m.Player.Rune)
 				continue
 			}
 			if e, ok := m.ActorAtPos(Vec2{xi, yi}, room); ok {
-				sb.WriteRune(e.Char)
+				sb.WriteRune(e.Rune)
 			} else {
-				sb.WriteRune(x)
+				sb.WriteRune(x.Rune)
 			}
 		}
 		sb.WriteString("\n")

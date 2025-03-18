@@ -12,8 +12,8 @@ type Vec3 struct {
 
 type Tile struct {
 	Type  TileType
-	Char  []rune
 	Name  string
+	Rune  rune
 	Color lipgloss.Color
 }
 
@@ -23,8 +23,36 @@ const (
 	TileEmpty TileType = iota
 	TileWall
 	TileFloor
-	TileStair
+	TileStairDown
+	TileStairUp
 )
+
+func NewTile(t TileType) Tile {
+	name, char := t.Repr()
+	return Tile{
+		Type: t,
+		Name: name,
+		Rune: char,
+	}
+}
+
+func (t TileType) Repr() (Name string, Rune rune) {
+	switch t {
+	case TileEmpty:
+		return "Empty", ' '
+	case TileWall:
+		return "Wall", '#'
+	case TileFloor:
+		return "Floor", '.'
+	case TileStairDown:
+		return "Stair Down", '>'
+	case TileStairUp:
+		return "Stair Up", '<'
+
+	default:
+		return "Unknown", '?'
+	}
+}
 
 type GameMap struct {
 	Turn    int
@@ -38,7 +66,7 @@ func (m *GameMap) AddNewRoom(pos Vec3, room Room) {
 
 type Room struct {
 	Pos    Vec3
-	Tiles  [][]rune
+	Tiles  [][]Tile
 	Actors []*Actor
 }
 

@@ -1,9 +1,5 @@
 package game
 
-import (
-	"fmt"
-)
-
 func MakeNewDebugGame() *RLGame {
 	game := RLGame{
 		M: GameMap{
@@ -59,12 +55,17 @@ type RLGame struct {
 
 const turnsPerUpdate uint8 = 1
 
-func (g *RLGame) Update(PlayerAction Action) {
-	shouldReturn := g.HandleAction(&g.M.Player, PlayerAction)
-	if shouldReturn {
+func (g *RLGame) Update(key string) {
+
+	/* process player action */
+	playerAction := GetPlayerAction(key, &g.M.Player)
+	pa_result := playerAction.Perform(g)
+	if !pa_result.Succeeded {
 		return
 	}
+	g.M.Player.Energy = 0
 
+	/* process other actor actions until it's the player's turn again */
 	for {
 		nextPlayerTurn := g.M.Player.Energy == g.M.Player.Speed
 		if nextPlayerTurn {
@@ -77,7 +78,11 @@ func (g *RLGame) Update(PlayerAction Action) {
 				a.Energy += turnsPerUpdate
 				continue
 			}
-			g.HandleAction(a, a.AI.DecideAction(a, nil))
+			action := a.AI.DecideAction(a, nil)
+			result := action.Perform(g)
+			if result.Succeeded {
+				a.Energy = 0
+			}
 		}
 		g.M.Turn += int(turnsPerUpdate)
 		g.M.Player.Energy += turnsPerUpdate
@@ -87,43 +92,4 @@ func (g *RLGame) Update(PlayerAction Action) {
 
 func (g *RLGame) RenderUI() string {
 	return g.UI.RenderScreen(&g.M)
-}
-
-/* actions */
-func (g *RLGame) HandleAction(e *Actor, action Action) (shouldReturn bool) {
-	e.Energy = 0
-
-	switch action := action.(type) {
-	case InvalidKeyAction:
-		return true
-	case WaitAction:
-		return false
-	case MoveAction:
-		g.HandleMoveAction(e, action.Target)
-	}
-	return false
-}
-
-func (g *RLGame) HandleMoveAction(a *Actor, target Vec2) {
-	target = Vec2{X: target.X + a.Pos.X, Y: target.Y + a.Pos.Y}
-
-	room := g.M.RoomMap[a.Room]
-	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
-		if a == &g.M.Player {
-			g.UI.NewStatusMsg("You bump into the edge!")
-		}
-		return
-	}
-
-	if other_e, ok := g.M.ActorAtPos(target, a.Room); !ok {
-		a.Pos.X = target.X
-		a.Pos.Y = target.Y
-	} else {
-		if a == &g.M.Player {
-			g.UI.NewStatusMsg(fmt.Sprintf("You bump into the %s!", other_e.Name))
-		} else if other_e == &g.M.Player {
-			g.UI.NewStatusMsg(fmt.Sprintf("The %s bumps into you!", a.Name))
-		}
-		return // do nothing for now
-	}
 }

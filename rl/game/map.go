@@ -11,8 +11,8 @@ type Vec3 struct {
 }
 
 type Tile struct {
-	Char []rune
-	//type
+	Type  TileType
+	Char  []rune
 	Name  string
 	Color lipgloss.Color
 }
@@ -29,7 +29,6 @@ const (
 type GameMap struct {
 	Turn    int
 	Player  Actor
-	Rooms   []Room
 	RoomMap map[Vec3]Room
 }
 
@@ -48,9 +47,9 @@ func (m *GameMap) ActorAtPos(pos Vec2, room Vec3) (*Actor, bool) {
 	if m.Player.Pos == pos && m.Player.Room == room {
 		return &m.Player, true
 	}
-	for _, e := range m.RoomMap[room].Actors {
-		if pos == e.Pos {
-			return e, true
+	for _, a := range m.RoomMap[room].Actors {
+		if pos == a.Pos {
+			return a, true
 		}
 	}
 	return &Actor{}, false

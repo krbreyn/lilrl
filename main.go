@@ -60,8 +60,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		default:
-			action := game.GetPlayerAction(key)
-			m.Game.Update(action)
+			m.Game.Update(key)
 		}
 
 	case tea.WindowSizeMsg:

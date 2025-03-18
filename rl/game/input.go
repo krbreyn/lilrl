@@ -1,6 +1,6 @@
 package game
 
-func GetPlayerAction(key string) Action {
+func GetPlayerAction(key string, player *Actor) Action {
 	switch key {
 	case ".":
 		return WaitAction{}
@@ -25,7 +25,7 @@ func GetPlayerAction(key string) Action {
 		case "n":
 			pos = Vec2{1, 1}
 		}
-		return MoveAction{Target: pos}
+		return MoveAction{Actor: player, Target: pos}
 
 	default:
 		return InvalidKeyAction{} // do not process turn

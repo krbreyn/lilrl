@@ -2,8 +2,6 @@ package game
 
 import "math/rand"
 
-type ActionType int
-
 type Actor struct {
 	Name   string
 	Char   rune
@@ -15,7 +13,7 @@ type Actor struct {
 }
 
 type AI interface {
-	DecideAction(n *Actor, ctx *AIContext) Action
+	DecideAction(a *Actor, ctx *AIContext) Action
 }
 
 type AIContext interface {
@@ -24,10 +22,10 @@ type AIContext interface {
 
 type WanderAI struct{}
 
-func (w WanderAI) DecideAction(n *Actor, ctx *AIContext) Action {
+func (w WanderAI) DecideAction(a *Actor, ctx *AIContext) Action {
 	dir := Vec2{
 		rand.Intn(3) - 1,
 		rand.Intn(3) - 1,
 	}
-	return MoveAction{Target: dir}
+	return MoveAction{Actor: a, Target: dir}
 }

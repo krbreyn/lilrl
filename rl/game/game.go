@@ -121,7 +121,7 @@ func (g *RLGame) HandleMoveAction(a *Actor, target Vec2) {
 	} else {
 		if a == &g.M.Player {
 			g.UI.NewStatusMsg(fmt.Sprintf("You bump into the %s!", other_e.Name))
-		} else {
+		} else if other_e == &g.M.Player {
 			g.UI.NewStatusMsg(fmt.Sprintf("The %s bumps into you!", a.Name))
 		}
 		return // do nothing for now

@@ -24,8 +24,12 @@ func GetPlayerAction(key string, player *Actor) Action {
 			pos = Vec2{-1, 1}
 		case "n":
 			pos = Vec2{1, 1}
+		case "p":
 		}
 		return MoveAction{Actor: player, Target: pos}
+
+	case "p":
+		return DebugAction{Cmd: "newmap"}
 
 	default:
 		return InvalidKeyAction{} // do not process turn

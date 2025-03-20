@@ -23,6 +23,7 @@ const (
 	TileEmpty TileType = iota
 	TileWall
 	TileFloor
+	TileDoor
 	TileStairDown
 	TileStairUp
 )
@@ -44,6 +45,8 @@ func (t TileType) Repr() (Name string, Rune rune) {
 		return "Wall", '#'
 	case TileFloor:
 		return "Floor", '.'
+	case TileDoor:
+		return "Door", '+'
 	case TileStairDown:
 		return "Stair Down", '>'
 	case TileStairUp:
@@ -81,4 +84,9 @@ func (m *GameMap) ActorAtPos(pos Vec2, room Vec3) (*Actor, bool) {
 		}
 	}
 	return &Actor{}, false
+}
+
+func (m *GameMap) TileAtPos(pos Vec2, room Vec3) Tile {
+	r := m.RoomMap[room]
+	return r.Tiles[pos.Y][pos.X]
 }

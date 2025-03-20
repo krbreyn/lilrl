@@ -11,6 +11,18 @@ type ActionResult struct {
 	Alternate Action
 }
 
+type DebugAction struct {
+	Cmd string
+}
+
+func (a DebugAction) Perform(g *RLGame) ActionResult {
+	switch a.Cmd {
+	case "newmap":
+		g.M.RoomMap[g.M.Player.Room] = Room{Tiles: GenDngRogue(100, 50), Actors: g.M.RoomMap[g.M.Player.Room].Actors}
+	}
+	return ActionResult{true, nil}
+}
+
 // player only
 type InvalidKeyAction struct{}
 
@@ -35,9 +47,18 @@ func (a MoveAction) Perform(g *RLGame) ActionResult {
 	room := g.M.RoomMap[a.Actor.Room]
 
 	/* bounds/wall checking */
-	if target.X < 0 || target.X > len(room.Tiles)-1 || target.Y < 0 || target.Y > len(room.Tiles[0])-1 {
+	if target.X < 0 || target.X > len(room.Tiles[0])-1 || target.Y < 0 || target.Y > len(room.Tiles)-1 {
 		if a.Actor == &g.M.Player {
 			g.UI.NewStatusMsg("You bump into the edge!")
+		}
+		return ActionResult{true, nil}
+	}
+
+	t_tile := g.M.TileAtPos(target, a.Actor.Room)
+	switch t_tile.Type {
+	case TileWall:
+		if a.Actor == &g.M.Player {
+			g.UI.NewStatusMsg("You bump into the wall!")
 		}
 		return ActionResult{true, nil}
 	}

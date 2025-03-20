@@ -13,21 +13,22 @@ func MakeNewDebugGame() *RLGame {
 				Speed:  10,
 			},
 		},
+		Depth: 1,
 	}
 
 	debug_room := Room{
-		Tiles: GenCaveRandomWalk(30, 30),
-		Actors: []*Actor{
-			{
-				Name:   "bat",
-				Rune:   'b',
-				Pos:    Vec2{X: 4, Y: 8},
-				Room:   Vec3{0, 0, 0},
-				AI:     WanderAI{},
-				Energy: 5,
-				Speed:  5,
-			},
-		},
+		Tiles: GenNewFloor(game.Depth),
+		// Actors: []*Actor{
+		// 	{
+		// 		Name:   "bat",
+		// 		Rune:   'b',
+		// 		Pos:    Vec2{X: 4, Y: 8},
+		// 		Room:   Vec3{0, 0, 0},
+		// 		AI:     WanderAI{},
+		// 		Energy: 5,
+		// 		Speed:  5,
+		// 	},
+		// },
 	}
 
 	game.M.AddNewRoom(Vec3{0, 0, 0}, debug_room)
@@ -36,8 +37,9 @@ func MakeNewDebugGame() *RLGame {
 }
 
 type RLGame struct {
-	M  GameMap
-	UI UI
+	M     GameMap
+	Depth int
+	UI    UI
 }
 
 //AlertMsg func - pause until user hits enter, ex. health below 50%

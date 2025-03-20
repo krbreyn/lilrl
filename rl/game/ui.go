@@ -15,9 +15,9 @@ func (ui *UI) NewStatusMsg(msg string) {
 	ui.statusMsgs = append(ui.statusMsgs, msg)
 }
 
-func (ui *UI) RenderScreen(m *GameMap) string {
+func (ui *UI) RenderScreen(m *GameMap, depth int) string {
 	statusMsg := ui.RenderStatusBox()
-	game_map := ui.RenderMap(m, m.Player.Room)
+	game_map := ui.RenderMap(m, depth)
 	sidebar := ui.RenderSideScreen(m)
 
 	layout := lipgloss.JoinHorizontal(
@@ -51,9 +51,9 @@ func (ui *UI) RenderStatusBox() string {
 	return last3
 }
 
-func (ui *UI) RenderMap(m *GameMap, room Vec3) string {
+func (ui *UI) RenderMap(m *GameMap, depth int) string {
 	var sb strings.Builder
-	r, ok := m.RoomMap[room]
+	r, ok := m.DepthMap[depth]
 
 	if !ok {
 		return "Something went horribly wrong! You are in a room that doesn't exist!"
@@ -69,7 +69,7 @@ func (ui *UI) RenderMap(m *GameMap, room Vec3) string {
 				sb.WriteRune(m.Player.Rune)
 				continue
 			}
-			if e, ok := m.ActorAtPos(Vec2{xi, yi}, room); ok {
+			if e, ok := m.ActorAtPos(Vec2{xi, yi}, depth); ok {
 				sb.WriteRune(e.Rune)
 			} else {
 				sb.WriteRune(x.Rune)

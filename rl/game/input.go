@@ -28,6 +28,9 @@ func GetPlayerAction(key string, player *Actor) Action {
 		}
 		return MoveAction{Actor: player, Target: pos}
 
+	case ">":
+		return StairMoveAction{Actor: player, Dir: "down"}
+
 	case "p":
 		return DebugAction{Cmd: "newmap"}
 

@@ -1,6 +1,9 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type Action interface {
 	Perform(g *RLGame) ActionResult
@@ -18,7 +21,8 @@ type DebugAction struct {
 func (a DebugAction) Perform(g *RLGame) ActionResult {
 	switch a.Cmd {
 	case "newmap":
-		g.M.RoomMap[g.M.Player.Room] = Room{Tiles: GenDngRogue(100, 50), Actors: g.M.RoomMap[g.M.Player.Room].Actors}
+		new_floor, _ := GenDngRogue(90, 50)
+		g.M.DepthMap[g.Depth] = Room{Tiles: new_floor, Actors: g.M.DepthMap[g.M.Player.Depth].Actors}
 	}
 	return ActionResult{true, nil}
 }
@@ -44,7 +48,7 @@ type MoveAction struct {
 func (a MoveAction) Perform(g *RLGame) ActionResult {
 	target := Vec2{X: a.Target.X + a.Actor.Pos.X, Y: a.Target.Y + a.Actor.Pos.Y}
 
-	room := g.M.RoomMap[a.Actor.Room]
+	room := g.M.DepthMap[a.Actor.Depth]
 
 	/* bounds/wall checking */
 	if target.X < 0 || target.X > len(room.Tiles[0])-1 || target.Y < 0 || target.Y > len(room.Tiles)-1 {
@@ -54,7 +58,7 @@ func (a MoveAction) Perform(g *RLGame) ActionResult {
 		return ActionResult{true, nil}
 	}
 
-	t_tile := g.M.TileAtPos(target, a.Actor.Room)
+	t_tile := g.M.TileAtPos(target, a.Actor.Depth)
 	switch t_tile.Type {
 	case TileWall:
 		if a.Actor == &g.M.Player {
@@ -64,7 +68,7 @@ func (a MoveAction) Perform(g *RLGame) ActionResult {
 	}
 
 	/* actor/combat checking */
-	if other_a, ok := g.M.ActorAtPos(target, a.Actor.Room); !ok {
+	if other_a, ok := g.M.ActorAtPos(target, a.Actor.Depth); !ok {
 		a.Actor.Pos.X = target.X
 		a.Actor.Pos.Y = target.Y
 	} else {
@@ -76,6 +80,34 @@ func (a MoveAction) Perform(g *RLGame) ActionResult {
 	}
 
 	return ActionResult{true, nil}
+}
+
+type StairMoveAction struct {
+	Actor *Actor
+	Dir   string // "up" or "down"
+}
+
+func (a StairMoveAction) Perform(g *RLGame) ActionResult {
+	switch a.Dir {
+	case "down":
+		if g.M.TileAtPos(a.Actor.Pos, a.Actor.Depth).Type != TileStairDown {
+			if a.Actor == &g.M.Player {
+				g.UI.NewStatusMsg("You cannot go down here!")
+			}
+			return ActionResult{false, nil}
+		} else {
+			g.Depth++
+			g.M.Player.Depth = g.Depth
+			new_map, spots := GenNewFloor(g.Depth)
+			newSpot := spots[rand.Intn(len(spots))]
+			g.M.Player.Pos.X = newSpot.X
+			g.M.Player.Pos.Y = newSpot.Y
+			new_room := Room{Tiles: new_map}
+			g.M.AddNewRoom(g.Depth, new_room)
+		}
+	}
+
+	return ActionResult{false, nil}
 }
 
 type AttackMeleeAction struct {

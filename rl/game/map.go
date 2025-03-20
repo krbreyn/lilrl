@@ -58,27 +58,26 @@ func (t TileType) Repr() (Name string, Rune rune) {
 }
 
 type GameMap struct {
-	Turn    int
-	Player  Actor
-	RoomMap map[Vec3]Room
+	Turn     int
+	Player   Actor
+	DepthMap map[int]Room
 }
 
-func (m *GameMap) AddNewRoom(pos Vec3, room Room) {
-	m.RoomMap[pos] = room
+func (m *GameMap) AddNewRoom(depth int, room Room) {
+	m.DepthMap[depth] = room
 }
 
 type Room struct {
-	Pos    Vec3
 	Tiles  [][]Tile
 	Actors []*Actor
 }
 
 // Follows the comma, ok pattern.
-func (m *GameMap) ActorAtPos(pos Vec2, room Vec3) (*Actor, bool) {
-	if m.Player.Pos == pos && m.Player.Room == room {
+func (m *GameMap) ActorAtPos(pos Vec2, depth int) (*Actor, bool) {
+	if m.Player.Pos == pos && m.Player.Depth == depth {
 		return &m.Player, true
 	}
-	for _, a := range m.RoomMap[room].Actors {
+	for _, a := range m.DepthMap[depth].Actors {
 		if pos == a.Pos {
 			return a, true
 		}
@@ -86,7 +85,7 @@ func (m *GameMap) ActorAtPos(pos Vec2, room Vec3) (*Actor, bool) {
 	return &Actor{}, false
 }
 
-func (m *GameMap) TileAtPos(pos Vec2, room Vec3) Tile {
-	r := m.RoomMap[room]
+func (m *GameMap) TileAtPos(pos Vec2, depth int) Tile {
+	r := m.DepthMap[depth]
 	return r.Tiles[pos.Y][pos.X]
 }

@@ -5,6 +5,9 @@ import (
 	"slices"
 )
 
+// definitely need to make this whole file cleaner after i figure this stuff out and work on
+// the rest of the featureset
+
 func makeNewGrid(width, height int) [][]Tile {
 	grid := make([][]Tile, height)
 	for i := range grid {
@@ -18,7 +21,7 @@ func makeNewGrid(width, height int) [][]Tile {
 	return grid
 }
 
-func GenNewFloor(depth int) [][]Tile {
+func GenNewFloor(depth int) ([][]Tile, []Vec2) {
 	if depth == 1 {
 		grid := makeNewGrid(10, 10)
 		for y := range grid {
@@ -29,7 +32,8 @@ func GenNewFloor(depth int) [][]Tile {
 				grid[y][x] = NewTile(TileFloor)
 			}
 		}
-		return grid
+		grid[rand.Intn(8)+1][rand.Intn(8)+1] = NewTile(TileStairDown)
+		return grid, []Vec2{Vec2{5, 5}}
 	}
 	return GenDngRogue(100, 50)
 }
@@ -325,7 +329,7 @@ func GenMazePrims() {
 // TODO integrate random walk into dng generation by having
 // a random walker randomly map out the room interior of a section
 
-func GenDngRogue(width, height int) [][]Tile {
+func GenDngRogue(width, height int) ([][]Tile, []Vec2) {
 	grid := makeNewGrid(width, height)
 	n := rand.Intn(2) + 5
 	sections := divideGridIntoSections(grid, n)
@@ -418,9 +422,9 @@ func GenDngRogue(width, height int) [][]Tile {
 	for i, sec := range sections {
 		adj[i] = sec.ConnectedIDs
 	}
-	placeStairs(adj, sections, grid, 2)
+	upstairs := placeStairs(adj, sections, grid, 3)
 
-	return grid
+	return grid, upstairs
 }
 
 // Computer distances from a set of starting sections.
@@ -452,7 +456,7 @@ func bfsDistances(adj [][]int, startSet []int) []int {
 }
 
 // Place k pairs of stairs
-func placeStairs(adj [][]int, sections []Section, grid [][]Tile, k int) {
+func placeStairs(adj [][]int, sections []Section, grid [][]Tile, k int) []Vec2 {
 	upStairs := []int{rand.Intn(len(sections))} // first up stair
 	downStairs := []int{}
 
@@ -488,15 +492,22 @@ func placeStairs(adj [][]int, sections []Section, grid [][]Tile, k int) {
 			}
 			upStairs = append(upStairs, nextUpStair)
 		}
+
 	}
 
+	var ret []Vec2
 	// place stairs
 	for _, up := range upStairs {
-		grid[sections[up].CenterY][sections[up].CenterX] = NewTile(TileStairUp)
+		y := sections[up].CenterY
+		x := sections[up].CenterX
+		grid[y][x] = NewTile(TileStairUp)
+		ret = append(ret, Vec2{x, y})
 	}
 	for _, down := range downStairs {
 		grid[sections[down].CenterY][sections[down].CenterX] = NewTile(TileStairDown)
 	}
+
+	return ret
 }
 
 // should be just like the above but with rooms randomly placed instead of

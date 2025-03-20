@@ -3,21 +3,22 @@ package game
 func MakeNewDebugGame() *RLGame {
 	game := RLGame{
 		M: GameMap{
-			RoomMap: make(map[Vec3]Room),
+			DepthMap: make(map[int]Room),
 			Player: Actor{
 				Name:   "player",
 				Rune:   '@',
 				Pos:    Vec2{X: 5, Y: 5},
-				Room:   Vec3{0, 0, 0},
 				Energy: 10,
 				Speed:  10,
+				Depth:  1,
 			},
 		},
 		Depth: 1,
 	}
 
+	new_floor, _ := GenNewFloor(game.Depth)
 	debug_room := Room{
-		Tiles: GenNewFloor(game.Depth),
+		Tiles: new_floor,
 		// Actors: []*Actor{
 		// 	{
 		// 		Name:   "bat",
@@ -31,7 +32,7 @@ func MakeNewDebugGame() *RLGame {
 		// },
 	}
 
-	game.M.AddNewRoom(Vec3{0, 0, 0}, debug_room)
+	game.M.AddNewRoom(1, debug_room)
 
 	return &game
 }
@@ -63,7 +64,7 @@ func (g *RLGame) Update(key string) {
 			break
 		}
 
-		for _, a := range g.M.RoomMap[g.M.Player.Room].Actors {
+		for _, a := range g.M.DepthMap[g.M.Player.Depth].Actors {
 			nextActorTurn := a.Energy == a.Speed
 			if !nextActorTurn {
 				a.Energy += turnsPerUpdate
@@ -82,5 +83,5 @@ func (g *RLGame) Update(key string) {
 }
 
 func (g *RLGame) RenderUI() string {
-	return g.UI.RenderScreen(&g.M)
+	return g.UI.RenderScreen(&g.M, g.Depth)
 }
